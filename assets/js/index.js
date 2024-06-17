@@ -345,8 +345,26 @@ document.addEventListener("DOMContentLoaded", () => {
   filterCategories();
   displayGalleryModal();
 });
+// verification du formulaire
+document.getElementById('contactForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Empêche l'envoi du formulaire
 
+  // Récupérer les valeurs des champs
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const message = document.getElementById('message').value.trim();
 
+  // Vérifier si tous les champs sont remplis
+  if (name === '' || email === '' || message === '') {
+      // Afficher le message d'erreur et cacher le message de succès
+      document.getElementById('errorMessage').style.display = 'block';
+      document.getElementById('successMessage').style.display = 'none';
+  } else {
+      // Cacher le message d'erreur et afficher le message de succès
+      document.getElementById('errorMessage').style.display = 'none';
+      document.getElementById('successMessage').style.display = 'block';
+  }
+});
 
 
 

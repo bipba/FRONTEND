@@ -223,6 +223,16 @@ input[type="submit"], #contact button{
 	border-radius: 60px ;
 	padding: 10px;
 }
+.error-message {
+	color: #B1663C;
+	display: none;
+	margin-top: 10px;
+}
+.success-message {
+	color: green;
+	display: none;
+	margin-top: 10px;
+}
 #error-message{
 	color: #B1663C;
 	display: none;
