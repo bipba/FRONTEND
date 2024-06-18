@@ -15,188 +15,165 @@ const inputTypeFile = document.querySelector('.containerAddFile input');
 const form = document.querySelector('.modalAdd form');
 const errorMessage = document.querySelector('#error-message');
 
+// récuperation le token de session stocké dans "sessionStorage"
 const token = window.sessionStorage.getItem("token");
 
-// Fonction pour obtenir les travaux depuis l'API
+// fonction pour obtenir les travaux depuis l'API
 async function catchWorks() {
-  const response = await fetch('http://localhost:5678/api/works');
-  return await response.json();
+  const response = await fetch('http://localhost:5678/api/works');//envoie une requête GET à l'API pour obtenir les works
+  return await response.json();// convertit la réponse en JSON et la retourne
 }
 
-// Fonction pour afficher les travaux dans la galerie principale
+//f unction pour afficher les WORKS dans la galerie principale
 async function displayWorks() {
-  gallery.innerHTML = "";
-  const works = await catchWorks();
+  gallery.innerHTML = "";// vidage du contenu de la galerie
+
+  const works = await catchWorks();// récupèration des works avec la fonction "catchWorks"
   works.forEach((work) => {
-    createWork(work);
+    createWork(work);// pour chaque work, création et ajout d'élément à la galerie
   });
 }
 
-// Fonction pour créer les éléments HTML et les ajouter à la galerie
+//function pour créer les éléments HTML et les ajouter à la galerie
 function createWork(work) {
   const figure = document.createElement('figure');
-  figure.dataset.id = work.id;
+  figure.dataset.id = work.id;// définit l'ID du travail comme un attribut de "figure"
   const img = document.createElement('img');
   const figcaption = document.createElement('figcaption');
-  img.src = work.imageUrl;
+
+  img.src = work.imageUrl;//définition de la source de l'img
   
-  figcaption.textContent = work.title;
+  figcaption.textContent = work.title;// définition du texte de la légende
   figure.appendChild(img);
   figure.appendChild(figcaption);
   gallery.appendChild(figure);
 }
 
-// Fonction pour obtenir les catégories depuis l'API
+// fonction pour obtention des catégories depuis l'API
 async function getCategories() {
+  // envoie une requête GET à l'API pour obtenir les catégories
   const responseCategories = await fetch("http://localhost:5678/api/categories");
-  return await responseCategories.json();
+  return await responseCategories.json();// convertion de la réponse en JSON et la retourne
 }
 
-// Fonction pour afficher les boutons de catégories
-// Fonction pour afficher les boutons de catégories
+// function pour l'affichage des btns de catégories
 async function displayBtnCategories() {
-  const categories = await getCategories();
+  const categories = await getCategories();// récupère les catégories en utilisant la function "getCategories"
 
-  // Ajouter le bouton "Tous" en premier
+  // création du btn "Tous" pour afficher tous les works
   const allBtn = document.createElement("button");
-  allBtn.id = 0;
-  allBtn.textContent = "Tous";
-  filters.appendChild(allBtn);
+  allBtn.id = 0;//ID 0 pour représenter tous les works
+  allBtn.textContent = "Tous";// texte du btn
+  allBtn.classList.add("active"); // pour ajouter la classe active par défaut
+  filters.appendChild(allBtn);// ajout du btn au conteneur des filters
 
-  // Ajouter les autres boutons de catégories
+  // pour chaque catégorie, crée un btn et s'ajoute au conteneur des filters
   categories.forEach(categorie => {
     const btn = document.createElement("button");
-    btn.id = categorie.id;
-    btn.textContent = categorie.name;
-    filters.appendChild(btn);
+    btn.id = categorie.id;// usage l'ID de la catégorie
+    btn.textContent = categorie.name;// texte du button
+    filters.appendChild(btn);// ajout du btn au conteneur des filters
   });
 }
 
-// async function displayBtnCategories() {
-//   const categories = await getCategories();
-//   categories.unshift({ id: 0, name: "Tous" });
-//   categories.forEach(categorie => {
-//     const btn = document.createElement("button");
-//     btn.id = categorie.id;
-//     btn.textContent = categorie.name;
-//     filters.appendChild(btn);
-//   });
-// }
-// displayBtnCategories();
-
-// // Fonction pour filtrer les travaux par catégorie
-// async function filterCategories() {
-//   const projet = await catchWorks();
-//   const buttons = document.querySelectorAll(".filters button");
-  
-//     buttons.addEventListener("click", (e) => {
-//       const clickedButton = e.target;
-//       if (clickedButton.tagName ==="BUTTON"){
-     
-//         const btnId = e.target.id;
-//         gallery.innerHTML = "";
-//         if (btnId !== "0") {
-//           const projetFiltersTri = projet.filter(work => work.categoryId == btnId);
-//           projetFiltersTri.forEach(work => {
-//             createWork(work);
-//           });
-//         } else {
-//           displayWorks();
-//         }
-//       }
-//       }
-//     )};
-
-
+// function pour filtrer les works par catégorie
 async function filterCategories() {
-  const projet = await catchWorks();
-  const buttons = document.querySelectorAll(".filters button");
+  const projets = await catchWorks();//récupèration des works en utilisant "catchWorks ()"
+  const buttons = document.querySelectorAll(".filters button");//sélection de tous les btns de filters
+// pour chaque btn, il faut ajouter un gestionnaire d'événement au click
   buttons.forEach(button => {
     button.addEventListener("click", (e) => {
-      const btnId = e.target.id;
+      const btnId = parseInt(e.target.id, 10);// récupère l'ID du btn cliqué
       gallery.innerHTML = "";
-      if (btnId !== "0") {
-        const projetFiltersTri = projet.filter(work => work.categoryId == btnId);
-        projetFiltersTri.forEach(work => {
+      // retire la classe active de tous les btns
+      buttons.forEach(btn => btn.classList.remove("active")); //retirer la classe active de tous les btns
+      e.target.classList.add("active"); 
+      // ajout de la classe active au btn cliqué
+      if (btnId !== 0) {
+        // filtrage des works par catégorie et les affiche
+        const projetsFiltres = projets.filter(work => work.categoryId === btnId);
+        projetsFiltres.forEach(work => {
           createWork(work);
         });
       } else {
-        displayWorks();
+        displayWorks();// rappel de la function pour l'affichage de tous les works
       }
     });
   });
 }
-// Fonction de connexion et vérification de statut de connexion
+
+// function de connexion et de vérif de statut de connexion
 function checkLoginStatus() {
   const loginButton = document.querySelector("#login-button");
-  const topMenu = document.querySelector(".topMenu");
-  const token = window.sessionStorage.getItem("token");
+  const topMenu = document.querySelector(".topMenu");// sélection du topMenu bordereau noir
+  const token = window.sessionStorage.getItem("token");//récupère le token de sessionStorage
   if (token) {
+    // si le token est présent, alors  configuration du btn pour la déconnexion
     loginButton.textContent = "Logout";
     loginButton.href = "#";
     loginButton.addEventListener("click", handleLogout);
-    modifier.style.display = "block";
-    topMenu.style.display = "flex";
-   filters.style.display = "none";
+    modifier.style.display = "block";// display l'élément "modifier"
+    topMenu.style.display = "flex";// display le menu supérieur
+    filters.style.display = "none";// undisplay les filtres
 
   } else {
-
+    // si aucun token n'est présent, alors configuration du btn pour la connexion
     loginButton.textContent = "Login";
     loginButton.href = "./login.html";
     loginButton.removeEventListener("click", handleLogout);
     modifier.style.display = "none";
     topMenu.style.display = "none";
     filters.style.display = "block";
-   
-    filterCategories();
+    filterCategories();// rappel de la function et applique les filtres de catégories
   }
 }
-
+// gestion de  la déconnexion
 function handleLogout(e) {
-  e.preventDefault();
-  logout();
+  e.preventDefault();// empêche le comportement par défaut (le rechargement de la page) % au lien
+  logout();// apelle de la fonction de déconnexion
 }
-
+// function de déconnexion
 function logout() {
-  window.sessionStorage.removeItem("token");
-  checkLoginStatus();
+  window.sessionStorage.removeItem("token");// suppression du token de session
+  checkLoginStatus();// vérification à nouveau du statut de connexion
 }
 
-// Fonction pour afficher les travaux dans la modale
+// function pour afficher les works dans la modale
 async function displayGalleryModal() {
   galleryModal.innerHTML = "";
-  const works = await catchWorks();
+  const works = await catchWorks();// récupèration des travaux
   works.forEach(work => {
     const figure = document.createElement('figure');
     const img = document.createElement('img');
-    const trash = document.createElement('i');
+    const trash = document.createElement('i');//c réation d'une icône de suppression
 
-    figure.dataset.id = work.id;
-    trash.classList.add('fa-solid', 'fa-trash');
-    trash.dataset.id = work.id;
-    img.src = work.imageUrl;
+    figure.dataset.id = work.id;// définit l'ID du work comme un attribut de figure
+    trash.classList.add('fa-solid', 'fa-trash');//ajout des classes à l'icône
+    trash.dataset.id = work.id;//définit l'ID du travail comme un attribut de l'icône
+    img.src = work.imageUrl;//définition la source de l'image
 
-    // Ajoutez un gestionnaire d'événements click à l'icône de suppression
+ // ajout d'un gestionnaire d'événements click à l'icône de suppression
     trash.addEventListener('click', async function() {
-      await deleteWork(work.id); // Appele une fonction pour supprimer le travail
-      figure.remove(); // Suppression l'élément figure du DOM
-      removeWorkFromGallery(work.id); // Suppression également l'élément de la galerie principale
+      await deleteWork(work.id); // appele une fonction pour supprimer le work
+      figure.remove(); // suppression de l'élément figure du DOM
+      removeWorkFromGallery(work.id); //suppression également de l'élément de la galerie principale
     });
 
-    figure.appendChild(trash);
+    figure.appendChild(trash);// ajout de l'icône et de l'image à la figure et le tout à la galleryModal
     figure.appendChild(img);
     galleryModal.appendChild(figure);
   });
 }
 
-// Fonction pour supprimer un travail de la source de données
+// function pour la suppression d'un work de la source de données
 async function deleteWork(id) {
   try {
-    const token = window.sessionStorage.getItem("token"); // Récupérer le jeton d'authentification
+    const token = window.sessionStorage.getItem("token"); //récupérer le jeton d'authentification
+    // envoie une requête DELETE à l'API pour supprimer le work
     const response = await fetch(`http://localhost:5678/api/works/${id}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`, // Ajouter le jeton à l'en-tête de la requête
+        'Authorization': `Bearer ${token}`, // ajouter le jeton à l'en-tête de la requête
         'Content-Type': 'application/json'
       }
     });
@@ -208,127 +185,127 @@ async function deleteWork(id) {
   }
 }
 
-// Fonction pour supprimer un travail de la galerie principale
+// function pour la suppréssion d'un work de la galerie principale
 function removeWorkFromGallery(id) {
+  // sélectionne l'élément figure correspondant à l'ID du work
   const workFigure = gallery.querySelector(`figure[data-id='${id}']`);
   if (workFigure) {
-    workFigure.remove();
+    workFigure.remove(); // suppression de l'élément figure du DOM
   }
 }
 
-
-// Réinitialiser la modale d'ajout
+// réinitialisation de la modale d'ajout
 function resetAddModal() {
-  form.reset(); // Réinitialiser le formulaire HTML
-  imgAddLoad.src = ''; // Réinitialiser l'image d'aperçu
-  imgAddLoad.style.display = 'none'; // Masquer l'image d'aperçu
-  document.querySelector('.containerAddFile label').style.display = 'block';
-  document.querySelector('.containerAddFile .fa-image').style.display = 'block';
-  document.querySelector('.containerAddFile p').style.display = 'block';
+  form.reset(); // réinitialiser le formulaire HTML
+  imgAddLoad.src = ''; // réinitialiser l'image d'aperçu
+  imgAddLoad.style.display = 'none'; // masquage de l'img d'aperçue
+  document.querySelector('.containerAddFile label').style.display = 'block';//display le label
+  document.querySelector('.containerAddFile .fa-image').style.display = 'block';//display l'icône
+  document.querySelector('.containerAddFile p').style.display = 'block';//paragraphe mesError
 }
 
 // Réinitialiser la modalContents
 function resetModalContents() {
-  // Ajoutez ici toute réinitialisation nécessaire pour modalContents
+ 
 }
 
-// Affichage de la modale et gestion de sa fermeture
+// affichage de la modale et gestion de sa fermeture
 modifier.addEventListener("click", () => {
-  resetModalContents(); // Réinitialiser la modalContents avant de l'afficher
-  modalAdd.style.display = "none"; // Assurez-vous que modalAdd est masqué
-  modalContents.style.display = "flex"; // Afficher modalContents
-  modalContainer.style.display = "flex";
+  resetModalContents(); // réinitialisation de la modalContents avant de l'afficher
+  modalAdd.style.display = "none"; // assure que modalAdd est masqué
+  modalContents.style.display = "flex"; // afficher modalContents
+  modalContainer.style.display = "flex";// affiche le conteneur de la modale
 });
-
+// gestion de la fermeture de la modale
 faXmark.addEventListener("click", () => {
   modalContainer.style.display = "none";
 });
-
+// gestion de la fermeture de la modale qund on clique en dehors de celle-ci
 modalContainer.addEventListener("click", (e) => {
   if (e.target.className === "modalContainer") {
     modalContainer.style.display = "none";
   }
 });
 
-// Affichage de la deuxième modale
+// affichage de la modale 2
 function displayAddModal () {
   modalBtnAdd.addEventListener("click", () => {
-    resetAddModal(); // Réinitialiser modalAdd avant de l'afficher
-    modalAdd.style.display = "flex";
-    modalContents.style.display = "none";
+    resetAddModal(); //affiche & réinitialise modalAdd avant de l'afficher
+    modalAdd.style.display = "flex";//affiche modalAdd
+    modalContents.style.display = "flex";//masque modalContents
   });
+  // gestion de la navigation de retour dans la modale
   arrowL.addEventListener("click", () => {
     modalAdd.style.display = "none";
     modalContents.style.display = "flex";
   });
+  // gestion de la fermeture de la modale
   xmark.addEventListener("click", () => {
-    modalContainer.style.display = "none";
+    modalContainer.style.display = "none";// masque le conteneur de la modale
   });
 }
-displayAddModal();
+displayAddModal();//rappelle de la fonction pour initialiser les événements de la modale
 
-// Prévisualisation de l'image
+// préview de l'img
 inputTypeFile.addEventListener("change", () => {
-  const file = inputTypeFile.files[0];
+  const file = inputTypeFile.files[0];// récupère le fichier sélectionné
   if (file) {
-    const reader = new FileReader();
+    const reader = new FileReader();// crée un nouvel "objet" FileReader
     reader.onload = (e) => {
-      imgAddLoad.src = e.target.result;
-      imgAddLoad.style.display = 'flex';
-      document.querySelector('.containerAddFile label').style.display = 'none';
-      document.querySelector('.containerAddFile .fa-image').style.display = 'none';
-      document.querySelector('.containerAddFile p').style.display = 'none';
+      imgAddLoad.src = e.target.result;// définit la source de l'image d'aperçu
+      imgAddLoad.style.display = 'flex';// affiche l'image d'aperçu
+      document.querySelector('.containerAddFile label').style.display = 'none';//masque le label
+      document.querySelector('.containerAddFile .fa-image').style.display = 'none';//masque l'icône
+      document.querySelector('.containerAddFile p').style.display = 'none';//masque le texte
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file);// lit le fichier comme une URL de données
   }
 });
 
-// Listing des catégories dans le formulaire
+// listing des catégories dans le formulaire
 async function displayCatImg() {
-  const select = document.querySelector("#category");
-  const categories = await getCategories();
+  const select = document.querySelector("#category");//sélectionne le menu déroulant des catégories
+  const categories = await getCategories();//récupère les catégories
   categories.forEach(category => {
-    const option = document.createElement("option");
-    option.value = category.id;
-    option.textContent = category.name;
-    select.appendChild(option);
+    const option = document.createElement("option");//crée une option pour le menu déroulant
+    option.value = category.id;//définit la valeur de l'option
+    option.textContent = category.name;//définit le texte de l'option
+    select.appendChild(option);//ajoute l'option au menu déroulant
   });
 }
-displayCatImg();
+displayCatImg();// appelle la fonction pour afficher les catégories
 
 // Ajout d'un nouveau travail
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  errorMessage.style.display = 'none'; // Masquer le message d'erreur au début
-  errorMessage.textContent = ''; // Réinitialiser le texte du message d'erreur
+  errorMessage.style.display = 'none'; //masquer le message d'erreur au début
+  errorMessage.textContent = ''; //réinitialiser le texte du message d'erreur
 
-
-  const formData = new FormData(form);
-  // Vérification des champs obligatoires
-  const title = formData.get('title');
+  const formData = new FormData(form);//récupère les données du formulaire
+  // vérification des champs obligatoires en récupèrant le titre + categorie + img
+  const title = formData.get('title');//
   const category = formData.get('category');
   const image = formData.get('image');
 
-  if (!title || !category || !image) {
+  if (!title || !category || !image) {//verif si tous les champs sont remplis
     errorMessage.textContent = 'Veuillez remplir tous les champs obligatoires.';
-    errorMessage.style.display = 'block';
-    return;
+    errorMessage.style.display = 'block';//affichage du message d'erreur
+    return;// arrête l'exécution si des champs sont vides
   }
-
 
   try {
     const response = await fetch("http://localhost:5678/api/works", {
-      method: "POST",
-      body: formData,
+      method: "POST",// méthode POST pour ajouter un nouveau travail
+      body: formData,// les données du formulaire
       headers: {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`// ajoute le token d'authentification
       }
     });
     if (response.ok) {
-      const newWork = await response.json();
-      createWork(newWork); // ajout de nouveau travail à la galerie principale
+      const newWork = await response.json();//récupère la réponse JSON
+      createWork(newWork); // ajout de new work à la galerie principale
       displayGalleryModal(); // mise à jour la galerie modale
-      modalContainer.style.display = "none";
+      modalContainer.style.display = "none";// masque le conteneur de la modale
     } else {
       console.error('Erreur lors de l\'ajout');
     }
@@ -339,28 +316,31 @@ form.addEventListener("submit", async (e) => {
 
 // initialisation au chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
-  checkLoginStatus();
-  displayWorks();
-  displayBtnCategories();
-  filterCategories();
-  displayGalleryModal();
+  checkLoginStatus();// vérifie le statut de connexion
+  displayWorks();// affiche les travaux
+  displayBtnCategories();// affiche les boutons de catégories
+  filterCategories();// applique les filtres de catégories
+  displayGalleryModal();// affiche la galerie modale
 });
-// verification du formulaire
-document.getElementById('contactForm').addEventListener('submit', function(event) {
-  event.preventDefault(); // Empêche l'envoi du formulaire
 
-  // Récupérer les valeurs des champs
+
+
+// vérification du formulaire de contact
+document.getElementById('contactForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // empêche l'envoi du formulaire
+
+  // récupère les valeurs des champs
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
   const message = document.getElementById('message').value.trim();
 
-  // Vérifier si tous les champs sont remplis
+  // vérifie si tous les champs sont remplis
   if (name === '' || email === '' || message === '') {
-      // Afficher le message d'erreur et cacher le message de succès
+      // affiche le message d'erreur et masque le message de succès
       document.getElementById('errorMessage').style.display = 'block';
       document.getElementById('successMessage').style.display = 'none';
   } else {
-      // Cacher le message d'erreur et afficher le message de succès
+      // masque le message d'erreur et affiche le message de succès
       document.getElementById('errorMessage').style.display = 'none';
       document.getElementById('successMessage').style.display = 'block';
   }

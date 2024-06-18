@@ -229,7 +229,7 @@ input[type="submit"], #contact button{
 	margin-top: 10px;
 }
 .success-message {
-	color: green;
+	color: #1D6154;
 	display: none;
 	margin-top: 10px;
 }
@@ -289,6 +289,11 @@ button {
     text-align: center;
 	border-style: none;
 }
+button.active {
+	background-color: #1D6154;
+	color: white;
+  }
+  
 .modalContainer button:focus,
 button:focus {
 	color: #FFFFFF;
@@ -326,14 +331,6 @@ button:focus {
 }
 /* agencement deuxieme modale */
 .modalAdd{
-	/* position: fixed;
-    top: 0;
-    left: 0;
-	display: none;
-	justify-content: center;
-	flex-direction: column;
-	align-items: center;
-	/* position: relative; */
 	position: fixed;
     top: 23%;
     left:28.75%;
@@ -344,7 +341,7 @@ button:focus {
 	width: 42.5%;
 	height: 54%; 
     background-color: rgba(0, 0, 0, 0.5);
-	background-color: orange;
+	background-color: #FFFFFF;
 	border-radius: 10px;
 	
 }
