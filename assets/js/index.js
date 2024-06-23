@@ -24,7 +24,7 @@ async function catchWorks() {
   return await response.json();// convertit la réponse en JSON et la retourne
 }
 
-//f unction pour afficher les WORKS dans la galerie principale
+// function pour afficher les WORKS dans la galerie principale
 async function displayWorks() {
   gallery.innerHTML = "";// vidage du contenu de la galerie
 
@@ -232,7 +232,7 @@ function displayAddModal () {
   modalBtnAdd.addEventListener("click", () => {
     resetAddModal(); //affiche & réinitialise modalAdd avant de l'afficher
     modalAdd.style.display = "flex";//affiche modalAdd
-    modalContents.style.display = "flex";//masque modalContents
+    modalContents.style.display = "none";//masque modalContents
   });
   // gestion de la navigation de retour dans la modale
   arrowL.addEventListener("click", () => {
